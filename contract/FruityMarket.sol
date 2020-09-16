@@ -1,20 +1,17 @@
 pragma solidity ^0.6.7;
 
-import "https://github.com/smartcontractkit/chainlink/blob/master/evm-contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
+interface Razor {
+    function getResult(uint256 id) external view returns (uint256);
+    function getJob(uint256 id) external view returns(string memory url, string memory selector, string memory name, bool repeat, uint256 result);
+}
 
 contract FruityMarket {
+    Razor public razor;
 
-    AggregatorV3Interface internal priceFeed;
-
-    /**
-     * Network: Kovan
-     * Aggregator: ETH/USD
-     * Address: 0x9326BFA02ADD2366b30bacB125260Af641031331
-     */
     constructor() public {
-        priceFeed = AggregatorV3Interface(0x9326BFA02ADD2366b30bacB125260Af641031331);
+        razor = Razor(0x310DF80268CfB188B50291F2b7a1A26b97614F4D);
     }
-    
+
     /**
      * Sends event on receive
      */
@@ -23,20 +20,11 @@ contract FruityMarket {
     receive() external payable {
         emit Received(msg.sender, msg.value);
     }
-
+    
     /**
      * Returns the latest price
      */
-    function getLatestPrice() public view returns (int) {
-        (
-            uint80 roundID, 
-            int price,
-            uint startedAt,
-            uint timeStamp,
-            uint80 answeredInRound
-        ) = priceFeed.latestRoundData();
-        // If the round is not complete yet, timestamp is 0
-        require(timeStamp > 0, "Round not complete");
-        return price;
+    function getLatestPrice() public view returns (uint256) {
+        return razor.getResult(1);
     }
 }
