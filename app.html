@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fruity Market</title>
+    <link rel="stylesheet" href="https://unpkg.com/bulma@0.9.0/css/bulma.min.css" />
+    <link rel="stylesheet" href="css/hover-min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <script src="https://kit.fontawesome.com/7dc3015a44.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.3.0/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+
+<body>
+
+    <!-- START NAV -->
+    <nav class="navbar" style="margin: 0;">
+        <div class="container">
+            <div class="navbar-brand">
+                <a href="index.html">
+                    <img src="assets/png/Fruity.png" width="120" height="120">
+                </a>
+                <span class="navbar-burger burger" data-target="navbarMenu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </div>
+            <div id="navbarMenu" class="navbar-menu">
+                <div class="navbar-end">
+                    <div class="navbar-item">
+                        <div class="buttons">
+                            <button id="connect" class="button is-primary">
+                                <strong>Connect Device</strong>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- END NAV -->
+
+    <div class="container has-text-centered">
+        <div class="section">
+            <div id="app" class="row columns is-multiline is-centered is-vcentered">
+                <div v-for="card in cardData" key="card.id" class="column is-narrow has-text-centered is-one-quarter">
+                    <div class='card equal-height hvr-hang' style="cursor: pointer;">
+                        <div class="card-content is-flex is-horizontal-center" :id="card.id" :name="card.name"
+                            :data-img="card.image" :data-price="card.price">
+                            <figure class="image is-128x128">
+                                <img :src="card.image" alt="Image">
+                            </figure>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="myModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title"></p>
+                <a href="app.html" class="delete" aria-label="close" data-bulma-modal="close"></a>
+            </header>
+            <section class="modal-card-body">
+                <center>
+                    <div class="columns is-vcentered has-background-danger-light">
+                        <div class="column">
+                            <strong class="has-text-black"><i class="fas fa-exclamation-triangle"></i> Only send <a
+                                    target="_blank" href="https://goerli-faucet.slock.it/">Görli Ether (GÖETH)</a>
+                            </strong>
+                            <br>
+                        </div>
+                    </div>
+                    <div class="columns is-vcentered">
+                        <div class="column">
+                            <figure class="image is-256x256">
+                                <img src="" alt="" id="fimg">
+                            </figure>
+                        </div>
+                        <div class="column">
+
+                            <h4 class="title is-4">Scan QR-CODE to pay</h4>
+                            <img src="assets/png/qr.png" alt="">
+                            <p>
+                                <span class="tag is-primary is-light is-large" id="fruit-price"></span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="columns is-vcentered has-background-info-light">
+                        <div class="column">
+                            <strong class="has-text-black">Contract address -</strong> <strong id="address"
+                                class="has-text-danger"></strong>
+                        </div>
+                    </div>
+                </center>
+            </section>
+            <footer class="modal-card-foot">
+                <a href="app.html" class="button" data-bulma-modal="close">Cancel</a>
+            </footer>
+        </div>
+    </div>
+
+    <script src="js/serial.js"></script>
+    <script src="js/arduino.js"></script>
+    <script src="js/card.js"></script>
+    <script src="js/web3code.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Get all "navbar-burger" elements
+            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+            // Check if there are any navbar burgers
+            if ($navbarBurgers.length > 0) {
+
+                // Add a click event on each of them
+                $navbarBurgers.forEach(el => {
+                    el.addEventListener('click', () => {
+
+                        // Get the target from the "data-target" attribute
+                        const target = el.dataset.target;
+                        const $target = document.getElementById(target);
+
+                        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                        el.classList.toggle('is-active');
+                        $target.classList.toggle('is-active');
+
+                    });
+                });
+            }
+
+        });
+    </script>
+
+    <!-- Using Vue to populate cards to reduce redundant code -->
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                cardData: cardsData
+            }
+        })
+
+    </script>
+
+    <script>
+        class BulmaModal {
+            constructor(selector) {
+                this.elem = document.querySelector(selector)
+                this.close_data()
+            }
+
+            show() {
+                this.elem.classList.toggle('is-active')
+                this.on_show()
+            }
+
+            close() {
+                this.elem.classList.toggle('is-active')
+                this.on_close()
+            }
+
+            close_data() {
+                var modalClose = this.elem.querySelectorAll("[data-bulma-modal='close']")
+                var that = this
+                modalClose.forEach(function (e) {
+                    e.addEventListener("click", function () {
+
+                        that.elem.classList.toggle('is-active')
+
+                        var event = new Event('modal:close')
+
+                        that.elem.dispatchEvent(event);
+                    })
+                })
+            }
+
+            on_show() {
+                var event = new Event('modal:show')
+
+                this.elem.dispatchEvent(event);
+            }
+
+            on_close() {
+                var event = new Event('modal:close')
+
+                this.elem.dispatchEvent(event);
+            }
+
+            addEventListener(event, callback) {
+                this.elem.addEventListener(event, callback)
+            }
+        }
+
+        var mdl = new BulmaModal("#myModal")
+
+        document.querySelectorAll('.card-content').forEach(item => {
+            item.addEventListener('click', event => {
+                mdl.show()
+                console.log(item);
+                let name = item.getAttribute("name");
+                console.log(name);
+                document.getElementsByClassName("modal-card-title")[0].innerText = name;
+                let image = item.getAttribute("data-img");
+                console.log(image);
+                document.getElementById("fimg").src = image;
+                let price = item.getAttribute("data-price");
+                amountToPay = Number.parseFloat(price / ethPrice).toPrecision(2);
+                document.getElementById("fruit-price").innerText = 'COST $' + price + ' - PAY ' + amountToPay + ' ETH';
+            })
+        })
+
+        mdl.addEventListener('modal:show', function () {
+            console.log("opened")
+        })
+
+        mdl.addEventListener("modal:close", function () {
+            console.log("closed")
+        })
+
+    </script>
+</body>
+
+</html>
