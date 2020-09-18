@@ -64,7 +64,7 @@ const aggregatorV3InterfaceABI =
 ]
 
 // Price Feed Address
-const addr = "0x78Fda09d33AF3642B58e12C02e4201456B383f37";
+const addr = "0x801582B8712bF4390e42aE111f1329894960A3a4";
 
 document.getElementById("address").innerText = addr;
 
